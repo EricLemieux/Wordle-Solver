@@ -9,7 +9,10 @@ function help() {
 wordle-solver
 
 USAGE:
-  wordle-solver [ARGS]
+  wordle-solver [OPTIONS] [ARGS]
+
+OPTIONS:
+  --help                Display this help text
 
 ARGS:
   <available-letters>   Letters that are available to be guessed [default: 'a-z']
