@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# World solver using grep.
+
+set -euo pipefail
+test "${DEBUG:-0}" = "1" && set -x
+
+function help() {
+  cat<<EOF
+wordle-solver
+
+USAGE:
+  wordle-solver [ARGS]
+
+ARGS:
+  <available-letters>   Letters that are available to be guessed [default: 'a-z']
+  <letters-in-word>     Letters that we know are in the word, but not their positions [default '']
+  <known-positions>     Letters that we know are in the word, and where they go.
+                        Positions that are unknown should be denoted with a period (.) [default '.....'] 
+
+EXAMPLE:
+  Assuming that we have already put a couple guesses into the game, and now we are stuck.
+  From our previous guesses we know that the letters 'wtyoadfjkzcv' are all available.
+  We also learned that the letters 'ato' are in the word, and that the word must start with 'a'.
+  
+  wordle-solver 'wtyoadfjkzcv' 'ato' 'a....'
+
+  Will out put 'afoot'
+EOF
+  exit 0
+}
+
+for value in "$@"; do
+  test "${value}" = "--help" && help
+done
+
+available_letters="${1-a-z}"
+letters_in_word="${2-}"
+known_positions="${3-.....}"
+
+letters_in_word_pattern="^"
+for (( i=0; i<"${#letters_in_word}"; i++ )); do
+  letters_in_word_pattern="${letters_in_word_pattern}(?=.*${letters_in_word:$i:1})"
+done
+
+grep -E "^[${available_letters}]{5}$" /usr/share/dict/words \
+  | grep -P "${letters_in_word_pattern}" \
+  | grep -E "^${known_positions}$"
+
